@@ -1,0 +1,37 @@
+# 2 useful facts in modular arithmetic:
+# if a ≡ b mod n and c ≡ d mod n:
+# 1. a + c ≡ b + d mod n
+# 2. a * c ≡ b * d mod n
+
+# Given: A protein string of length at most 1000 amino acids
+# Return: The total number of different RNA strings from which the protein could have been
+#         translated, modulo 1000000.
+codon_table = {'UUU': 'F', 'CUU': 'L', 'AUU': 'I', 'GUU': 'V',
+               'UUC': 'F', 'CUC': 'L', 'AUC': 'I', 'GUC': 'V',
+               'UUA': 'L', 'CUA': 'L', 'AUA': 'I', 'GUA': 'V',
+               'UUG': 'L', 'CUG': 'L', 'AUG': 'M', 'GUG': 'V',
+               'UCU': 'S', 'CCU': 'P', 'ACU': 'T', 'GCU': 'A',
+               'UCC': 'S', 'CCC': 'P', 'ACC': 'T', 'GCC': 'A',
+               'UCA': 'S', 'CCA': 'P', 'ACA': 'T', 'GCA': 'A',
+               'UCG': 'S', 'CCG': 'P', 'ACG': 'T', 'GCG': 'A',
+               'UAU': 'Y', 'CAU': 'H', 'AAU': 'N', 'GAU': 'D',
+               'UAC': 'Y', 'CAC': 'H', 'AAC': 'N', 'GAC': 'D',
+               'UAA': 'Stop', 'CAA': 'Q', 'AAA': 'K', 'GAA': 'E',
+               'UAG': 'Stop', 'CAG': 'Q', 'AAG': 'K', 'GAG': 'E',
+               'UGU': 'C', 'CGU': 'R', 'AGU': 'S', 'GGU': 'G',
+               'UGC': 'C', 'CGC': 'R', 'AGC': 'S', 'GGC': 'G',
+               'UGA': 'Stop', 'CGA': 'R', 'AGA': 'R', 'GGA': 'G',
+               'UGG': 'W', 'CGG': 'R', 'AGG': 'R', 'GGG': 'G'
+               }
+
+s = 'MRKYVPNGYEQGKDIDCCQGCEGRDEDRGFVGRKYWPIIMCQSEEGDNARNILPHPKKWGWNNGPIRVISCLWAKAVMAFYWSGVSMLVDPNGCSDQEIEGYEHMKPKHWVWYVEHTRTDTYFNARCNCDECQYWTMWEFRDGRKAGAWYHSYDHSWLDPNLCGTDEYQIRNVVWHYECAPLVNRIYCSVIPGDCRQPCIELQLSGISVGHMVSQPRLSMKHIPWTQPQMRVNPPTQRWSAFNSLWSWSDNQKLQFSKAYCCCQAVDFGAPQQEDFTQFHSNHAWTCVYRCYKYGVDQSRSLTHGCNWYLDCEMTCMTTILQRHGEPDPPWIMEFHPNYDVNPESDKLSPYETPHDFGIMRAPYWLLVKGKWGYVTMGAQAARVVWPEEAHYVLWPHYANEFTAFFLWNNYTAWHNCWAAWATYRACDDDNERQELSQDNLADKGSHMLFVRVMLFCAVHGRMDQHFLQRYWAHRVLFGLFQHAAFPRAWSQNCNFVWSCHAPYVWDKRRFHSPFCISISHVYNGTGCTRHWAWCQWNKIHQPYFLWRYVVMFPIPVSAKMCHARDKKVCTQDGRTNYDRLFDWIVWPRVSYPLYMVEVMEVAGVRFSALQSWGQDNCKGPYLQFRLFYGWGHSAEFSFCATFCDCKKRIMETHPWKFTHIKYVQATLMKSVHANWPMNWRFRQVELFLLKRQEMTAENRLLRFRSILAGNNLFQQCPAWQKAKHIYYRAWSKSMMVAERFMKWIANSLRNQYGDCTDNLWYGWDEKMTIHPDIEVKENTMQCAPGAGCACAESAQWDHYRQPHLSSQTFEGFDSVDWMHFSFHGIESSSTDEYHIRRVIHTAKNTCSGHMLWYEADNKNVLFMGKSMCPKFECGHFYMPSPEWPSFLITFIGGRIFTYQAGMCIIYIQSEMTETWCQDQLHITKGPNWYRTCVRQGIHCTCGYDVLQWMYVHNLKLMHLADGDFQCQNSITIWPIEPTAETPLCQAWKVLTTQVIGK'
+n = 1
+
+for aa in s:
+    num_rna = sum(x == aa for x in codon_table.values())
+    n *= num_rna
+
+# have to multiply by 3 at the end to take into account the 'Stop' codon
+total_rna = n * 3
+
+print(total_rna % 1000000)
