@@ -3,8 +3,6 @@
 # Given: A collection of k (k <= 100) DNA strings of length at most 1 kbp each in FASTA format
 # Return: A longest common substring of the collection (if multiple solutions exist, return any single solution).
 
-import numpy as np
-
 f = open('rosalind_lcsm.txt', "r")
 dna_lst = []
 is_dna = False
