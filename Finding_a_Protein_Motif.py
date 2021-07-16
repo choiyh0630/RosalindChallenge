@@ -19,65 +19,99 @@
 # 5. Write to the output file the access IDs and the corresponding locations of N-glycosylation motifs for the protein sequence
 
 import re
-import urllib.parse
 import urllib.request
 
-url = 'https://www.uniprot.org/uploadlists/'
-s = 'P00750_UROT_HUMAN P00740_FA9_HUMAN P17967 P07357_CO8A_HUMAN P01046_KNL1_BOVIN P10153_RNKD_HUMAN P01190_COLI_BOVIN Q82ZQ1 P55067_PGCN_RAT A1TJ10 P10643_CO7_HUMAN B9LIC8 P08198_CSG_HALHA P42098_ZP3_PIG Q50228'
+# open input file, read in the UniProt IDs
+f = open('rosalind_mprt.txt', 'r')
+id_lst = []
+for line in f.read().splitlines():
+    id_lst.append(line)
+print(id_lst)
 
-params = {
-'from': 'ACC+ID',
-'to': 'ACC',
-'format': 'fasta',
-'query': s,
-'include': 'no'
-}
+# obtain all the corresponding protein sequences
+seq_raw = []
+for id in id_lst:
+    url = 'http://www.uniprot.org/uniprot/' + id + '.fasta'
+    with urllib.request.urlopen(url) as response:
+        html = response.read()
+        seq_raw.append(html.decode('utf-8'))
 
-data = urllib.parse.urlencode(params)
-data = data.encode('utf-8')
-req = urllib.request.Request(url, data)
-with urllib.request.urlopen(req) as f:
-   response = f.read()
-print(response.decode('utf-8'))
-sequences = response.decode('utf-8').splitlines()
-ids = s.split(' ')
-print(ids)
-print(len(ids))
-count = 0
+# save the sequences in a dictionary
 seq_dic = {}
+count = 0
+for s in seq_raw:
+    s_lst = s.split('\n')
+    seq_dic[count] = ''.join(s_lst[1:])
+    count += 1
+
+n_gly_pat = '(?=(N[^P][ST][^P]))'
+
+# obtain the locations of n-glycosylation motifs in the sequences
+loc_dic = {}
+for key, seq in seq_dic.items():
+    # print(key, ids[key])
+    # print(seq)
+    locations = [match.start() + 1 for match in re.finditer(n_gly_pat, seq_dic[key])]
+    if locations:
+        loc_dic[id_lst[key]] = locations
+    else:
+        continue
+
+print(loc_dic)
+
+# save the output in a file
+output = open("Output_Finding_a_Protein_Motif.txt", 'w+')
+for id, locs in loc_dic.items():
+    output.write(id + "\n")
+    output.write(' '.join(str(loc) for loc in locs) + "\n")
+output.close()
+
+
+# ------ First try of obtaining the sequences from UniProt; Resulted in duplicate results -------
+# s = 'P08198_CSG_HALHA'
+# url = 'http://www.uniprot.org/uniprot/' + s + '.fasta'
+# with urllib.request.urlopen(url) as response:
+#     html = response.read()
+#     print(html)
+
+# url = 'https://www.uniprot.org/uploadlists/'
+# s = 'P00750_UROT_HUMAN P00740_FA9_HUMAN P17967 P07357_CO8A_HUMAN P01046_KNL1_BOVIN P10153_RNKD_HUMAN P01190_COLI_BOVIN Q82ZQ1 P55067_PGCN_RAT A1TJ10 P10643_CO7_HUMAN B9LIC8 P08198_CSG_HALHA P42098_ZP3_PIG Q50228'
+#
+# params = {
+# 'from': 'ACC+ID',
+# 'to': 'ACC',
+# 'format': 'fasta',
+# 'query': s,
+# 'include': 'no'
+# }
+#
+# data = urllib.parse.urlencode(params)
+# data = data.encode('utf-8')
+# req = urllib.request.Request(url, data)
+# with urllib.request.urlopen(req) as f:
+#    response = f.read()
+# print(response.decode('utf-8'))
+# sequences = response.decode('utf-8').splitlines()
+# ids = s.split(' ')
+# print(ids)
+# print(len(ids))
+# count = 0
+# seq_dic = {}
 # pattern = '\\|.*\\|'
 # for i in sequences:
 #     if i.startswith('>'):
 #         id = re.findall(pattern, i)[0][1:-1]
 #         print(id)
 
-for p in sequences:
-    if p.startswith('>'):
-        seq_dic[count] = ''
-        count += 1
-        print(count)
-    else:
-        seq_dic[count - 1] += p
-
-print(seq_dic)
-
-n_gly_pat = '(?=(N[^P][ST][^P]))'
-
-# loc_dic = {}
-# for key, seq in seq_dic.items():
-#     # print(key, ids[key])
-#     # print(seq)
-#     locations = [match.start() + 1 for match in re.finditer(n_gly_pat, seq_dic[key])]
-#     if locations:
-#         loc_dic[ids[key]] = locations
+# for p in sequences:
+#     if p.startswith('>'):
+#         seq_dic[count] = ''
+#         count += 1
+#         print(count)
 #     else:
-#         continue
+#         seq_dic[count - 1] += p
+#
+# print(seq_dic)
+#
 
-#print(loc_dic)
-
-# output = open("Output_Finding_a_Protein_Motif.txt", 'w+')
-# for id, locs in loc_dic.items():
-#     output.write(id + "\n")
-#     output.write(' '.join(str(loc) for loc in locs) + "\n")
-# output.close()
 
