@@ -21,8 +21,8 @@
 # Return: The adjacency list corresponding to O_3.
 
 k = 3
-file = open('Sample_Overlap_Graphs.txt', 'r')
-#file = open('rosalind_grph.txt', 'r')
+#file = open('Sample_Overlap_Graphs.txt', 'r')
+file = open('rosalind_grph.txt', 'r')
 reads = file.read().splitlines()
 print(reads)
 
@@ -45,6 +45,9 @@ class Graph:
         for n in self.nodes:
             self.adj_lst[n] = []
 
+    def add_edge(self, v, w):
+        self.adj_lst[v].append(w)
+
 def is_prefix(suffix_seq, prefix_seq, threshold):
     suffix = suffix_seq[-threshold:]
     prefix = prefix_seq[:threshold]
@@ -52,6 +55,21 @@ def is_prefix(suffix_seq, prefix_seq, threshold):
         return True
     return False
 
-seq = "AAATAAA"
-seq_2 = 'AAATTTT'
-print(is_prefix(seq, seq_2, k))
+nodes = list(dna_dic.keys())
+graph = Graph(nodes)
+
+for seq in graph.nodes:
+    for s in graph.nodes:
+        if seq == s:
+            continue
+        else:
+            if is_prefix(dna_dic[seq], dna_dic[s], k):
+                graph.add_edge(seq, s)
+
+print(graph.adj_lst)
+
+# Print final output as adjacency list
+nonempty_nodes = [id for id in graph.nodes if graph.adj_lst[id]]
+for node in nonempty_nodes:
+    for edge in graph.adj_lst[node]:
+        print(node, edge)
