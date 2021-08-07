@@ -9,7 +9,8 @@
 #        unique way to reconstruct the entire chromosome from these reads by gluing together pairs of reads that overlap by more than half their length.
 # Return: A shortest superstring containing all the given strings (thus corresponding to a reconstructed chromosome).
 
-f = open('Sample_Genome_Assembly_as_Shortest_Superstring.txt', 'r')
+f = open('rosalind_long.txt', 'r')
+# f = open('Sample_Genome_Assembly_as_Shortest_Superstring.txt', 'r')
 l = f.read().splitlines()
 d = {}
 i = 0
@@ -36,6 +37,97 @@ for r_id, read in d.items():
                 overlaps[r_id] = r_id_2
                 found_overlap = True
     if not found_overlap:
-        overlaps[r_id] = None
+        overlaps[r_id] = 'N/A'
 
 print(overlaps)
+
+
+def long_substr(dna_list):
+    substr = ''
+    if len(dna_list) > 1 and len(dna_list[0]) > 0:
+        for i in range(len(dna_list[0])):
+            for j in range(len(dna_list[0]) - i + 1):
+                if j > len(substr) and is_substr(dna_list[0][i:i+j], dna_list):
+                    substr = dna_list[0][i:i+j]
+    return substr
+
+# takes in a substring pattern and the list of DNA sequences
+# returns whether the substring pattern is a common substring in all sequences in the list
+def is_substr(subs, dna_lst):
+    if len(subs) < 1 or len(dna_lst) < 1:
+        return False
+    for dna in dna_lst:
+        if subs not in dna:
+            return False
+    return True
+
+def get_key_of_value(v):
+    return list(overlaps.keys())[list(overlaps.values()).index(v)]
+
+#v = long_substr([d['Rosalind_56'], d['Rosalind_58']])
+# print(v)
+# print('ATTAGACCTG'.find(v))
+# print('ATTAGACCTG'[3:3+len(v)])
+
+# def combine(head, follow):
+#     s = ''
+#     pair_lst = [head, follow]
+#     overlap = long_substr(pair_lst)
+#     for seq in pair_lst:
+#         overlap_start = seq.find(overlap)
+#         if overlap_start > 0:
+#             s += seq[:overlap_start]
+
+
+
+
+scs = ''
+visited = []
+ids = []
+count = 0
+while len(ids) < len(d.keys()):
+    if count == 0:
+        head_id = get_key_of_value('N/A')
+        following_id = get_key_of_value(head_id)
+        head = d[head_id]
+        following = d[following_id]
+        overlap = long_substr([head, following])
+        overlap_start = head.find(overlap)
+        scs += head[:overlap_start]
+        scs += overlap
+        overlap_start = following.find(overlap)
+        scs += following[overlap_start+len(overlap):]
+        count += 1
+        ids.append(head_id)
+        ids.append(following_id)
+    else:
+        following_id = get_key_of_value(following_id)
+        head_id = overlaps[following_id]
+        overlap = long_substr([scs, d[following_id]])
+        overlap_start = d[following_id].find(overlap)
+        scs += d[following_id][overlap_start+len(overlap):]
+        ids.append(following_id)
+
+# for key, value in overlaps.items():
+#     visited.append(key)
+#     head_id = key
+#     if value == None:
+#         following_id = get_key_of_value(head_id)
+#         visited.append(following_id)
+#         head = d[head_id]
+#         following = d[following_id]
+#         overlap = long_substr([head, following])
+#         overlap_start = head.find(overlap)
+#         scs += head[:overlap_start]
+#         scs += overlap
+#         overlap_start = following.find(overlap)
+#         scs += following[overlap_start+len(overlap):]
+#     elif key not in visited:
+#         following_id
+print(scs)
+
+# print(get_key_of_value('N/A'))
+#
+#
+#
+# print(get_key_of_value('Rosalind_56'))
