@@ -64,25 +64,7 @@ def is_substr(subs, dna_lst):
 def get_key_of_value(v):
     return list(overlaps.keys())[list(overlaps.values()).index(v)]
 
-#v = long_substr([d['Rosalind_56'], d['Rosalind_58']])
-# print(v)
-# print('ATTAGACCTG'.find(v))
-# print('ATTAGACCTG'[3:3+len(v)])
-
-# def combine(head, follow):
-#     s = ''
-#     pair_lst = [head, follow]
-#     overlap = long_substr(pair_lst)
-#     for seq in pair_lst:
-#         overlap_start = seq.find(overlap)
-#         if overlap_start > 0:
-#             s += seq[:overlap_start]
-
-
-
-
 scs = ''
-visited = []
 ids = []
 count = 0
 while len(ids) < len(d.keys()):
@@ -103,31 +85,11 @@ while len(ids) < len(d.keys()):
     else:
         following_id = get_key_of_value(following_id)
         head_id = overlaps[following_id]
-        overlap = long_substr([scs, d[following_id]])
+        overlap = long_substr([d[head_id], d[following_id]])
         overlap_start = d[following_id].find(overlap)
         scs += d[following_id][overlap_start+len(overlap):]
         ids.append(following_id)
 
-# for key, value in overlaps.items():
-#     visited.append(key)
-#     head_id = key
-#     if value == None:
-#         following_id = get_key_of_value(head_id)
-#         visited.append(following_id)
-#         head = d[head_id]
-#         following = d[following_id]
-#         overlap = long_substr([head, following])
-#         overlap_start = head.find(overlap)
-#         scs += head[:overlap_start]
-#         scs += overlap
-#         overlap_start = following.find(overlap)
-#         scs += following[overlap_start+len(overlap):]
-#     elif key not in visited:
-#         following_id
+# Output
 print(scs)
 
-# print(get_key_of_value('N/A'))
-#
-#
-#
-# print(get_key_of_value('Rosalind_56'))
