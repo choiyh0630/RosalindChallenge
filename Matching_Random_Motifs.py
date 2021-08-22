@@ -27,21 +27,5 @@ def prob_s(s, x):
             p *= p_gc
     return p
 
-print(prob_s(s, x))
+print(1- (1-prob_s(s, x))**N)
 
-def no_prob_s(s, x, N):
-    p = 1
-    p_g = p_c = x/2
-    p_a = p_t = (1 - x)/2
-    for n in s:
-        if n == 'A':
-            p *= 1 - p_a
-        elif n == 'T':
-            p *= 1 - p_t
-        elif n == 'G':
-            p *= 1 - p_g
-        else:
-            p *= 1 - p_c
-    return 1 - p ** N
-
-print(no_prob_s(s,x,N))
