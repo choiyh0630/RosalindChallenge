@@ -10,9 +10,6 @@ for s in l:
     elif not s.startswith('>'):
         d[name] += s
 
-
-print(d)
-
 # p-distance: proportions of corresponding symbols that differ in s1 and s2
 
 def p_matrix(dic):
