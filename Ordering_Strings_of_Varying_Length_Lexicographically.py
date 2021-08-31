@@ -12,7 +12,7 @@ def get_all_possible_seqs(n):
     else:
         return get_next_set_of_seqs(get_all_possible_seqs(n-1), n-1)
 
-def get_next_set_of_seqs(seq_lst, n):
+def get_next_set_of_seqs(seq_lst, m):
     res = []
     # if not seq_lst: # when n == 1, seq_lst is [] because
     #     for i in l:
@@ -20,7 +20,7 @@ def get_next_set_of_seqs(seq_lst, n):
     #else:
     for s in seq_lst:
         res.append(s)
-        if len(s) == n:
+        if len(s) == m:
             for i in l:
                 res.append(s + i)
     return res
