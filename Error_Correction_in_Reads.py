@@ -17,52 +17,30 @@ print(d)
 # print(Counter(d.values()))
 # print([k for k, v in Counter(d.values()).items() if v == 1])
 
-# returns a dictionary where the key-value pairs are the single-nucleotide corrections of each other
-def error_corrections(reads_dic):
-    corrections = {}
-    # check if there are any duplicates and return unique reads
-    # unique_reads = [k for k, v in Counter(reads_dic.values()).items() if v == 1]
-    reads = [v for v in reads_dic.values()]
-    # rev_comp_reads = []
-    # for read in reads:
-    #     rev_comp_reads.append(get_rev_comp(read))
-    #
-    # reads.extend(rev_comp_reads)
 
-    # for each read, check if there are pair matches as reverse complements
-    # AND check for any read pairs that have Hamming Distance of 1
-    for i in range(len(reads)):
-        read1 = reads[i]
-        for read2 in reads[i+1:]:
-            # if is_reverse_comp(i, read): -- we don't even need to know if there are rev comp matches for the result
-                # remove the pairs since we don't need them in the output
+def get_error_corrections(reads_dic):
+    corrections_result = {}
+    original_reads = [v for v in reads_dic.values()]
+    original_reads_rc = [get_rev_comp(read) for read in original_reads]
+    print(original_reads_rc)
+    correct_reads = get_correct_reads(original_reads, original_reads_rc)
+    print(correct_reads)
 
-            # if we haven't already matched the sequence with another sequence, check for Hamming Distance
-            # if (read1 not in corrections) or (read1 not in corrections.values()):
-            if is_Hamming_Distance_1(read1, read2):
-                if read1 not in corrections or read2 not in corrections:
-                    corrections[read1] = read2
-    # corrections = filter_original_reads(corrections, reads_dic)
-    to_check_rev_comp_lst = reads.copy()
-    already_paired_reads = list(corrections.keys()) + list(corrections.values())
-    for read in already_paired_reads:
-        to_check_rev_comp_lst.remove(read)
-    to_check_rev_comp_no_dup_lst = [k for k, v in Counter(to_check_rev_comp_lst).items() if v == 1]
-    print(f'to_check: {to_check_rev_comp_no_dup_lst}')
-    # rev_comp_reads = set([get_rev_comp(read) for read in to_check_rev_comp_lst]) -- set not ideal because it doesn't keep the original list's order
-    rev_comp_reads = [get_rev_comp(read) for read in list(OrderedDict.fromkeys(to_check_rev_comp_lst))]
-    print(rev_comp_reads)
-    for i in range(len(to_check_rev_comp_no_dup_lst)):
-        read1 = to_check_rev_comp_no_dup_lst[i]
-        j = 0
-        while j < len(rev_comp_reads):
-            read2 = rev_comp_reads[j]
-            if is_Hamming_Distance_1(read1, read2):
-                corrections[read1] = read2
-                break
-            j += 1
 
-    return corrections
+def get_correct_reads(original_reads_lst, original_reads_rc_lst):
+    duplicates_in_original = [k for k,v in Counter(original_reads_lst).items() if v > 1]
+    duplicates_in_o_rc = []
+    for read in original_reads_lst:
+        if read in duplicates_in_original:
+            continue
+        else:
+            if read in original_reads_rc_lst:
+                duplicates_in_o_rc.append(read)
+
+    # duplicates_in_original.extend(duplicates_in_o_rc)
+    return (duplicates_in_original, duplicates_in_o_rc)
+
+
 
 # returns True if the Hamming Distance between read1 and read2 is 1
 def is_Hamming_Distance_1(read1, read2):
@@ -100,22 +78,80 @@ def get_rev_comp(read):
             rev_comp += 'G'
     return rev_comp
 
+
+print(get_error_corrections(d))
+
 # removes all the pairs that contain the reverse complement as the old read
 def filter_original_reads(paired_dic, original_dic):
     return {k: paired_dic[k] for k in paired_dic if k in original_dic.values()}
 
-print(error_corrections(d))
-# unique_reads = [k for k, v in Counter(d.values()).items() if v == 1]
-# for read in unique_reads:
-#     print(get_rev_comp(read))
-
-# def is_reverse_comp(read1, read2):
+# result = error_corrections(d)
+# print(result)
 #
-#     return True
+# output = open('Output_Error_Correction_in_Reads.txt', 'w')
+# for k, v in result.items():
+#     output.write(k + '->' + v + '\n')
+# output.close()
 
 
+'''
+def error_corrections(reads_dic):
+    corrections = {}
+    reads = [v for v in reads_dic.values()]
+    for i in range(len(reads)):
+        read1 = reads[i]
+        for read2 in reads[i+1:]:
+            if is_Hamming_Distance_1(read1, read2):
+                if read1 not in corrections or read2 not in corrections:
+                    corrections[read1] = read2
+    return corrections
 
-#
-# for i in range(len(d.values())):
-#     for j in list(d.values())[:i] + list(d.values())[i+1:]:
-#         print(i, j)
+# returns a dictionary where the key-value pairs are the single-nucleotide corrections of each other
+def error_corrections(reads_dic):
+    corrections = {}
+    # check if there are any duplicates and return unique reads
+    # unique_reads = [k for k, v in Counter(reads_dic.values()).items() if v == 1]
+    reads = [v for v in reads_dic.values()]
+    # rev_comp_reads = []
+    # for read in reads:
+    #     rev_comp_reads.append(get_rev_comp(read))
+    #
+    # reads.extend(rev_comp_reads)
+
+    # for each read, check if there are pair matches as reverse complements
+    # AND check for any read pairs that have Hamming Distance of 1
+    for i in range(len(reads)):
+        read1 = reads[i]
+        for read2 in reads[i+1:]:
+            # if is_reverse_comp(i, read): -- we don't even need to know if there are rev comp matches for the result
+                # remove the pairs since we don't need them in the output
+
+            # if we haven't already matched the sequence with another sequence, check for Hamming Distance
+            # if (read1 not in corrections) or (read1 not in corrections.values()):
+            if is_Hamming_Distance_1(read1, read2):
+                if read1 not in corrections or read2 not in corrections:
+                    corrections[read1] = read2
+    # corrections = filter_original_reads(corrections, reads_dic)
+    to_check_rev_comp_lst = reads.copy()
+    already_paired_reads = list(corrections.keys()) + list(corrections.values())
+
+    for read in already_paired_reads:
+        print(read)
+        to_check_rev_comp_lst.remove(read)
+    to_check_rev_comp_no_dup_lst = [k for k, v in Counter(to_check_rev_comp_lst).items() if v == 1]
+    print(f'to_check: {to_check_rev_comp_no_dup_lst}')
+    # rev_comp_reads = set([get_rev_comp(read) for read in to_check_rev_comp_lst]) -- set not ideal because it doesn't keep the original list's order
+    rev_comp_reads = [get_rev_comp(read) for read in list(OrderedDict.fromkeys(to_check_rev_comp_lst))]
+    print(rev_comp_reads)
+    for i in range(len(to_check_rev_comp_no_dup_lst)):
+        read1 = to_check_rev_comp_no_dup_lst[i]
+        j = 0
+        while j < len(rev_comp_reads):
+            read2 = rev_comp_reads[j]
+            if is_Hamming_Distance_1(read1, read2):
+                corrections[read1] = read2
+                break
+            j += 1
+
+    return corrections
+'''
