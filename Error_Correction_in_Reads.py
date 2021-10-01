@@ -1,7 +1,7 @@
 from collections import Counter
-from collections import OrderedDict
+# from collections import OrderedDict
 
-f = open('./Sample_Error_Correction_in_Reads.txt', 'r')
+f = open('./rosalind_corr.txt', 'r')
 l = f.read().splitlines()
 print(l)
 d = {}
@@ -14,32 +14,37 @@ for i in l:
 
 print(d)
 
-# print(Counter(d.values()))
-# print([k for k, v in Counter(d.values()).items() if v == 1])
-
-
+# input: a dictionary that has key:value pair of 'sequence identifier: read'.
+# output: a dictionary that has key: value pair of 'old read: new read', where the old read is the incorrect read with
+#         a point mutation and the new read is the correct read (or its reverse complement).
 def get_error_corrections(reads_dic):
     corrections_result = {}
-    original_reads = [v for v in reads_dic.values()]
-    original_reads_rc = [get_rev_comp(read) for read in original_reads]
-    print(original_reads_rc)
-    correct_reads = get_correct_reads(original_reads, original_reads_rc)
-    print(correct_reads)
+    original_reads = [read for read in reads_dic.values()]
+    correct_reads_dic = get_correct_reads(original_reads)
+    print(correct_reads_dic)
+    correct_reads_lst = list(correct_reads_dic.keys()) + list(correct_reads_dic.values())
+
+    # for each original read, check with all the correct reads to see if it's an incorrect read that has a single nucleotide mutation
+    for read in correct_reads_lst:
+        for original_read in original_reads:
+            if is_Hamming_Distance_1(read, original_read):
+                corrections_result[original_read] = read
+    return corrections_result
 
 
-def get_correct_reads(original_reads_lst, original_reads_rc_lst):
-    duplicates_in_original = [k for k,v in Counter(original_reads_lst).items() if v > 1]
-    duplicates_in_o_rc = []
+# definition of a correct read = appears at least twice in the dataset, possibly as a reverse complement => get all the duplicates in the dataset
+# input: a list that contains only the original reads
+# output: a dictionary with a key: value pair of 'original read that are correct: its reverse complement'
+def get_correct_reads(original_reads_lst):
+    duplicates_in_original = {k: get_rev_comp(k) for k,v in Counter(original_reads_lst).items() if v > 1}
+    rev_comp_lst = [get_rev_comp(read) for read in original_reads_lst]
+
     for read in original_reads_lst:
-        if read in duplicates_in_original:
-            continue
-        else:
-            if read in original_reads_rc_lst:
-                duplicates_in_o_rc.append(read)
+        for i in range(len(rev_comp_lst)):
+            if read == rev_comp_lst[i]:
+                duplicates_in_original[read] = original_reads_lst[i]
 
-    # duplicates_in_original.extend(duplicates_in_o_rc)
-    return (duplicates_in_original, duplicates_in_o_rc)
-
+    return duplicates_in_original
 
 
 # returns True if the Hamming Distance between read1 and read2 is 1
@@ -82,18 +87,20 @@ def get_rev_comp(read):
 print(get_error_corrections(d))
 
 # removes all the pairs that contain the reverse complement as the old read
-def filter_original_reads(paired_dic, original_dic):
-    return {k: paired_dic[k] for k in paired_dic if k in original_dic.values()}
+# def filter_original_reads(paired_dic, original_dic):
+#     return {k: paired_dic[k] for k in paired_dic if k in original_dic.values()}
 
-# result = error_corrections(d)
-# print(result)
-#
-# output = open('Output_Error_Correction_in_Reads.txt', 'w')
-# for k, v in result.items():
-#     output.write(k + '->' + v + '\n')
-# output.close()
+result = get_error_corrections(d)
+print(result)
+
+# save all the results in the output dictionary as old read -> new read format in a txt file
+output = open('Output_Error_Correction_in_Reads.txt', 'w')
+for k, v in result.items():
+    output.write(k + '->' + v + '\n')
+output.close()
 
 
+# my first stab at the problem; the key was to realize that we have to compare the reads to only the CORRECT reads
 '''
 def error_corrections(reads_dic):
     corrections = {}
