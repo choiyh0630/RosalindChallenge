@@ -26,8 +26,8 @@ def LCS(s1, s2):
 dp_table = np.zeros((len(s) + 1, len(t) + 1))
 
 # to reflect the empty string in the dp table
-s = " " + s
-t = " " + t
+# s = " " + s
+# t = " " + t
 
 for i in range(1, len(s)):
     for j in range(1, len(t)):
